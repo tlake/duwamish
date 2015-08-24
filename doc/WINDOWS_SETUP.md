@@ -18,6 +18,7 @@ Create a new virtual environment inside of the repository folder:
 virtualenv env
 env\scripts\activate
 ```
+===========
 
 
 [**Download and install the PostgreSQL dependency at this link**](http://www.stickpeople.com/projects/python/win-psycopg/).
@@ -28,6 +29,7 @@ Scroll down to the the **Release Files** section of the page. Choose the downloa
 ```
 (env) C:\duwamish> easy_install env\psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe 
 ```
+===========
 
 
 Install the project requirements:
@@ -36,7 +38,7 @@ pip install -r requirements.txt
 ```
 
 
-**NOTE: You can run the project locally without completing this step:*
+**NOTE: You can run the project locally without completing this step right away:*
 
 Next, add the `.env` file under `src/.env` that was provided to you by your project contact. The file should contain the following format:
 
