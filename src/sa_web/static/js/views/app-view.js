@@ -145,7 +145,7 @@ var Shareabouts = Shareabouts || {};
       if (self.options.sidebarConfig.enabled) {
         // Start Master Legend
         (new S.LegendView({
-          el: '#master-legend',
+          el: '#side-bar',
           layers: { items: this.options.mapConfig.layers,
                     title: this.options.sidebarConfig.layersTitle },
           reports: this.options.sidebarConfig.reports

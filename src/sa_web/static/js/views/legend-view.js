@@ -3,7 +3,8 @@ var Shareabouts = Shareabouts || {};
 (function(S, $, console){
   S.LegendView = Backbone.View.extend({
     events: {
-      'change .map-legend-checkbox': 'toggleVisibility'
+      'change .map-legend-checkbox': 'toggleVisibility',
+      'click .closeLegend': 'toggleFlyout'
     },
     initialize: function () {
 
@@ -17,9 +18,15 @@ var Shareabouts = Shareabouts || {};
             layers: this.options.layers
           };
 
-      this.$el.html(Handlebars.templates['legend'](data));
+      this.$('#master-legend').html(Handlebars.templates['legend'](data));
 
       return this;
+    },
+
+    toggleFlyout: function(evt){
+      evt.preventDefault();
+      var width = this.$el.width() * -1;
+      this.$el.css('right', width);
     },
 
     // Checkbox change handler, triggers event to the MapView
