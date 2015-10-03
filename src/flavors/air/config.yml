@@ -55,7 +55,7 @@ map:
       type: json
       # type: esri
       description: _(Air Concerns from esri map)
-      popupContent: '{{Comments}}'
+      popupContent: '<b>Pollution source:</b>{{PollutionSource}}<br><b>Activity Response:</b>{{ActivityResponse}}<br><b>Comments:</b> {{Comments}}'
       legend: true
       visible: true
       title: _(Air Concerns)
