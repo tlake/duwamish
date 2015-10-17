@@ -104,7 +104,7 @@ msgstr ""
 
 #: flavors/duwamish_flavor/_config.translations.py:21
 #: flavors/duwamish_flavor/_config.translations.py:32
-msgid "Your Name"
+msgid "名前"
 msgstr ""
 
 #: flavors/duwamish_flavor/_config.translations.py:23
@@ -141,7 +141,7 @@ msgstr ""
 
 #: flavors/duwamish_flavor/_config.translations.py:34
 msgid "Your Email"
-msgstr ""
+msgstr "メールアドレス"
 
 #: flavors/duwamish_flavor/_config.translations.py:35
 msgid "Type of report"
@@ -239,7 +239,7 @@ msgstr ""
 #: flavors/duwamish_flavor/_config.translations.py:62
 #: flavors/duwamish_flavor/jstemplates/pages/contribute.html:2
 msgid "Get involved"
-msgstr ""
+msgstr "参加する"
 
 #: flavors/duwamish_flavor/jstemplates/pages/background.html:2
 msgid ""
@@ -252,7 +252,7 @@ msgstr ""
 
 #: flavors/duwamish_flavor/jstemplates/pages/background.html:3
 msgid "Take me to the map!"
-msgstr ""
+msgstr "地図を見る！"
 
 #: flavors/duwamish_flavor/jstemplates/pages/background.html:4
 msgid ""
@@ -264,14 +264,17 @@ msgid ""
 "higher rates of heart disease, asthma, and other illnesses than other "
 "Seattle areas. It is also home to salmon, osprey, sea lions, and other "
 "creatures who face unsafe levels of contamination."
-msgstr ""
+msgstr "ドゥワミッシュ川はシアトルにある唯一の川ですが、アメリカで最も汚染の進んだ水路です。"
+"100年間もの工業化の末、今ではPCB（ポリ塩化ビフェニル）、ダイオキシン、発がん性PAH、ヒ素（多環芳香族炭化水素）などの有毒化学物質が、人体、環境に対する安全基準値を超える量含まれています。"
+"調査によると、ドゥワミッシュ川沿いの低所得層の多く住む地域では、心臓病、喘息などの病気にかかるリスクがシアトル市内の他の地域に比べて高いことが明らかになっています。"
+"ドゥワミッシュ川には鮭、ミサゴ、アシカなどの動物たちが住んでいますが、これらの動物もまた高い汚染レベルの危険にさらされています。"
 
 #: flavors/duwamish_flavor/jstemplates/pages/background.html:5
 msgid ""
 "The history here is rich. The Duwamish Tribe lived along the shores of this "
 "river for over 10,000 years, since the last ice age, until they were removed "
 "by incoming settlers who came about a century and a half ago."
-msgstr ""
+msgstr "ドゥワミッシュ川には豊かな歴史があります。ドゥワミッシュ族は150年前に新しい移住者が来て土地を追われるまで、氷河期から10000年もの間この川沿いに住み続けてきました。"
 
 #: flavors/duwamish_flavor/jstemplates/pages/background.html:6
 msgid ""
@@ -322,7 +325,7 @@ msgstr ""
 
 #: flavors/duwamish_flavor/jstemplates/pages/features.html:2
 msgid "For designers and developers,"
-msgstr ""
+msgstr "開発者/デザイナー"
 
 #: flavors/duwamish_flavor/jstemplates/pages/features.html:3
 msgid "For project managers during a project,"
