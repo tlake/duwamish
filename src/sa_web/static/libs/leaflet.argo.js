@@ -11,7 +11,7 @@ L.Argo = L.GeoJSON.extend({
     L.Util.setOptions(this, options);
     L.Util.setOptions(this, {
       pointToLayer: this._pointToLayer.bind(this),
-      onEachFeature: this._onEachFeature
+      onEachFeature: this._onEachFeature.bind(this)
     });
 
     var successHandler = L.Util.bind(function(geojson) {
@@ -41,6 +41,9 @@ L.Argo = L.GeoJSON.extend({
   },
 
   _pointToLayer: function (feature, latlng) {
+    if (feature.geometry.type != 'Point') {
+      console.log("argo._pointToLayer called")
+    }
     var style = L.Argo.getStyleRule(feature, this.options.rules);
     style['icon'] = L.icon(style.icon);
     return L.marker(latlng, style);
@@ -49,23 +52,52 @@ L.Argo = L.GeoJSON.extend({
 
   _onEachFeature: function(feature, layer) {
     var style, popupContent;
+    // console.log("argo._onEachFeature feature:", feature)
+    // {
+    //     "fill-opacity": 0.699999988079071,
+    //     "fill": "#f1f075",
+    //     "stroke-opacity": 1,
+    //     "stroke-width": 4,
+    //     "stroke": "#1087bf",
+    //     "id": "marker-ib0aowd10",
+    //     "description": "Before Cleanup\n\n<img src=\"http:\/\/www.epa.gov\/region10\/images\/sites\/ldw\/slip4before_2012.jpg\">",
+    //     "title": "Slip 4"
+    //   }
+    // console.log("argo._onEachFeature layer:", layer)
+    //
     if (layer.feature.geometry['type'] == 'Point') {
       style = feature; // feature has already been transformed for marker points
+      // console.log("argo._onEachFeature style:", style)
     } else {
-      style = L.Argo.getStyleRule(feature, this.rules);
+      // style = L.Argo.getStyleRule(feature, this.rules);
+      style = L.Argo.getStyleRule(feature, this.options.rules);
+      // console.log("argo.eachFeature called on non-point layer:", layer)
+      // console.log("argo.eachFeature called on non-point feature:", feature)
     }
 
-    if (this.popupContent) {
-      popupContent = L.Argo.t(this.popupContent, feature.properties);
+    // console.log("argo._onEachFeature this.popupContent unset:", this.popupContent)
+    // Get our popup contents using the template outlined in our option's config
+    // which replaces our {{key}} with feature.properties.key
+    if (this.options.popupContent) {
+      popupContent = L.Argo.t(this.options.popupContent, feature.properties);
     }
+    
+    // // console.log("argo._onEachFeature popupContent:", popupContent)
+    // console.log("argo._onEachFeature this.options:", this.options)
+    // console.log("argo._onEachFeature feature:", feature)
+    // popupContent = this.options.viewPlace(id, responseId)
+    // // popupContent = (new this.options.view()).render({ "title": feature.properties.title, "description": feature.properties.description })
+    // console.log("argo._onEachFeature popupContent.el:", popupContent.el)
+    // // console.log("argo._onEachFeature popupContent.$el:", popupContent.$el)
 
     if (style) {
       // Only clickable if there is popup content; convert to bool
-      style.clickable = !!popupContent;
-
+      style.clickable = !!popupContent || this.options.landmark;
+      
       // Set the style manually since so I can use popupContent to set clickable
       if (layer.feature.geometry['type'] != 'Point') {
         layer.setStyle(style);
+        // console.log("argo.onEachFeature manually set style of layer:", layer)
       }
 
       // Handle radius for circle marker
@@ -76,6 +108,7 @@ L.Argo = L.GeoJSON.extend({
       // Init the popup
       if (popupContent) {
         layer.bindPopup(popupContent);
+        // layer.bindPopup(popupContent.el);
       }
     } else {
       layer.setStyle({
@@ -83,6 +116,26 @@ L.Argo = L.GeoJSON.extend({
         stroke: false
       });
     }
+    // if (layer.feature.geometry['type'] != 'Point') {
+    //   console.log("argo.eachFeature called on non-point layer:", layer)
+    //   console.log("argo.eachFeature called on non-point feature:", feature)
+    // }
+    // if (this.options.landmark && feature.properties['navTitle']) {
+    if (this.options.landmark) {
+      
+      // console.log("argo: landmark feature detected")
+      // console.log("argo: feature.properties['navTitle']:", feature.properties['navTitle'])
+      // layer = L.Argo.t(this.popupContent, feature.properties);
+      console.log("argo.onEachFeature: layer.feature.properties.title:", layer.feature.properties.title)
+      var navTitle = feature.properties['title'].replace(/<[^>]*>/g,'').replace(/ /g, '-').replace(/--+/g, '-')
+      console.log("argo.onEachFeature: navTitle:", navTitle)
+      this.options.addToLandmarkLayers(navTitle, layer)
+      // layer.on('click', this.options.navigate('/landmark/' + navTitle, {trigger: true}))
+      // this.navTitle = navTitle
+      layer.on('click', this.options.navigateToLandmark(navTitle), this.options)
+      layer.feature.properties['navTitle'] = navTitle
+    }
+    
   },
 
   _getGeoServerCallbackName: function() {
@@ -175,19 +228,21 @@ L.extend(L.Argo, {
         }
 
         // Format Mapbox features, which use the 'properties' attribute
-        if (feature['properties']) {
-        // Format 'title' and 'description' for Mapbox -> Leaflet compatability
-          if (feature.properties['title']) {
-            feature.properties['title'] = '<b>' + feature.properties['title'] + '</b>';
-          }
-          if (feature.properties['description']) {
-            if (feature.properties['title']) {
-              feature.properties['title'] = feature.properties['title'] + '<br>' + feature.properties['description'];
-            } else {
-              feature.properties['title'] = feature.properties['description'];
-            }
-          }
-        }
+        // if (feature['properties']) {
+        // // Format 'title' and 'description' for Mapbox -> Leaflet compatability
+        //   if (feature.properties['title']) {
+        //     feature.properties['navTitle'] = feature.properties['title'];
+        //     feature.properties['title'] = '<b>' + feature.properties['title'] + '</b>';
+        //   }
+        //   if (feature.properties['description']) {
+        //     if (feature.properties['title']) {
+        //       feature.properties['navTitle'] = feature.properties['title'];
+        //       feature.properties['title'] = feature.properties['title'] + '<br>' + feature.properties['description'];
+        //     } else {
+        //       feature.properties['title'] = feature.properties['description'];
+        //     }
+        //   }
+        // }
 
         // Format marker icon features
         if (rules[i].icon) {

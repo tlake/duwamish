@@ -8,6 +8,7 @@ var Shareabouts = Shareabouts || {};
       '': 'viewMap',
       'place/new': 'newPlace',
       'place/:id': 'viewPlace',
+      'landmark/:title': 'viewLandmark',
       'place/:id/response/:response_id': 'viewPlace',
       'place/:id/edit': 'editPlace',
       'list': 'showList',
@@ -53,11 +54,14 @@ var Shareabouts = Shareabouts || {};
 
       this.loading = true;
       this.collection = new S.PlaceCollection([]);
+      // this.landmarks = new S.PlaceCollection([]);
       this.activities = new S.ActionCollection(options.activity);
       this.appView = new S.AppView({
         el: 'body',
         collection: this.collection,
         activities: this.activities,
+
+        // landmarks: this.landmarks,
 
         config: options.config,
 
@@ -114,6 +118,10 @@ var Shareabouts = Shareabouts || {};
     // Open view for first step in multi-step form
     newPlace: function() {
       this.appView.newPlace();
+    },
+
+    viewLandmark: function(title) {
+      this.appView.viewLandmark(title, this.loading);
     },
 
     viewPlace: function(id, responseId) {
