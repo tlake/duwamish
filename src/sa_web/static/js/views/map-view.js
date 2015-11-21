@@ -22,6 +22,7 @@ var Shareabouts = Shareabouts || {};
       self.placeLayers = self.getLayerGroups();
 
       self.layers = {};
+      this.landmarkLayers = {};
 
       // Add layers defined in the config file
       _.each(self.options.mapConfig.layers, function(config){
@@ -29,8 +30,30 @@ var Shareabouts = Shareabouts || {};
         // "type" is required by Argo for fetching data, so it's a pretty good
         // Argo indicator. Argo is this by the way: https://github.com/openplans/argo/
         if (config.type) {
+          // Load our html into our config
+          // config.template = new S.MapboxEarlyActionView({
+            
+            
+          //   // model: model,
+          //   // surveyConfig: this.options.surveyConfig,
+          //   // supportConfig: this.options.supportConfig,
+          //   // placeConfig: this.options.placeConfig,
+          //   // placeTypes: this.options.placeTypes,
+          //   // userToken: this.options.userToken
+          // });
+          // console.log("map-view: config:", config)
+          // config.view = S.MapboxEarlyActionView
+          if (config.landmark) {
+            // config.navigate = self.options.router.navigate;
+            config.router = self.options.router;
+            config.addToLandmarkLayers = self.addToLandmarkLayers.bind(self);
+            config.navigateToLandmark = self.navigateToLandmark.bind(self);
+          }
           layer = L.argo(config.url, config);
           self.layers[config.id] = layer;
+          // if (config.landmark) {
+          //   self.landmarkLayers[layer.feature.properties.navTitle] = layer
+          // }
 
         // "layers" is required by Leaflet WMS for fetching data, so it's a pretty good
         // that the layer is WMS. Documentation here: http://leafletjs.com/reference.html#tilelayer-wms
@@ -70,6 +93,7 @@ var Shareabouts = Shareabouts || {};
       }
 
       self.map.addLayer(self.placeLayers);
+      // console.log("mapView.landmarkLayers:", self.landmarkLayers)
 
       // Init the layer view cache
       this.layerViews = {};
@@ -197,6 +221,33 @@ var Shareabouts = Shareabouts || {};
     },
     geolocate: function() {
       this.map.locate();
+    },
+    // addLandmarkLayerView: function(layer) {
+    //   this.layerViews[model.cid] = new S.BasicLayerView({
+    //     // model: model,
+    //     router: this.options.router,
+    //     map: this.map,
+    //     // placeLayers: this.placeLayers,
+        
+    //     placeTypes: this.options.placeTypes,
+    //     // to access the filter
+    //     mapView: this
+    //   });
+    // },
+    addToLandmarkLayers: function(navTitle, layer) {
+      // console.log("mapView.addToLandmarkLayers: navTitle, layer:", navTitle, layer)
+      this.landmarkLayers[navTitle] = layer
+      // console.log("mapView.addToLandmarkLayers: this.landmarkLayers:", this.landmarkLayers)
+    },
+    navigateToLandmark: function(navTitle) {
+      // console.log("mapView.navigateToLandmark returning anonymous function")
+      // console.log("mapView.navigateToLandmark this.options.router:", this.options.router)
+      return function() {
+        // console.log("mapView.navigateToLandmark returning router.navigate function")
+        // console.log("mapView.navigateToLandmark anon function: this.router:", this.router)
+        this.router.navigate('/landmark/' + navTitle, {trigger: true});
+        // console.log("navigating!!!")
+      }
     },
     addLayerView: function(model) {
       this.layerViews[model.cid] = new S.LayerView({

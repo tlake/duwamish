@@ -3,7 +3,7 @@
 var Shareabouts = Shareabouts || {};
 
 (function(S, $, console){
-  S.LayerView = Backbone.View.extend({
+  S.BasicLayerView = Backbone.LayerView.extend({
      // A view responsible for the representation of a place on the map.
     initialize: function(){
       this.map = this.options.map;
@@ -13,11 +13,11 @@ var Shareabouts = Shareabouts || {};
       this.throttledRender = _.throttle(this.render, 300);
 
       // Bind model events
-      this.model.on('change', this.updateLayer, this);
-      this.model.on('focus', this.focus, this);
-      this.model.on('unfocus', this.unfocus, this);
+      // this.model.on('change', this.updateLayer, this);
+      // this.model.on('focus', this.focus, this);
+      // this.model.on('unfocus', this.unfocus, this);
 
-      this.map.on('zoomend', this.updateLayer, this);
+      // this.map.on('zoomend', this.updateLayer, this);
 
       // On map move, adjust the visibility of the markers for max efficiency
       this.map.on('move', this.throttledRender, this);
@@ -27,17 +27,18 @@ var Shareabouts = Shareabouts || {};
     initLayer: function() {
       var geom, context;
 
-      // Handle if an existing place type does not match the list of available
-      // place types.
-      this.placeType = this.options.placeTypes[this.model.get('location_type')];
-      if (!this.placeType) {
-        console.warn('Place type', this.model.get('location_type'),
-          'is not configured so it will not appear on the map.');
-        return;
-      }
+      // // Handle if an existing place type does not match the list of available
+      // // place types.
+      // this.placeType = this.options.placeTypes[this.model.get('location_type')];
+      // if (!this.placeType) {
+      //   console.warn('Place type', this.model.get('location_type'),
+      //     'is not configured so it will not appear on the map.');
+      //   return;
+      // }
 
       // Don't draw new places. They are shown by the centerpoint in the app view
-      if (!this.model.isNew()) {
+      // if (!this.model.isNew()) {
+      if (true) {
 
         // Determine the style rule to use based on the model data and the map
         // state.
@@ -45,7 +46,9 @@ var Shareabouts = Shareabouts || {};
           this.model.toJSON(),
           {map: {zoom: this.map.getZoom()}},
           {layer: {focused: this.isFocused}});
-        this.styleRule = L.Argo.getStyleRule(context, this.placeType.rules);
+        // this.styleRule = L.Argo.getStyleRule(context, this.placeType.rules);
+        this.styleRule = L.Argo.getStyleRule(context, this.options.rules);
+        // console.log("layer-view.initLayer: this.styleRule:", this.styleRule)
 
         // Construct an appropriate layer based on the model geometry and the
         // style rule. If the place is focused, use the 'focus_' portion of
@@ -75,16 +78,16 @@ var Shareabouts = Shareabouts || {};
         this.render();
       }
     },
-    updateLayer: function() {
-      // Update the marker layer if the model changes and the layer exists
-      this.removeLayer();
-      this.initLayer();
-    },
-    removeLayer: function() {
-      if (this.layer) {
-        this.options.placeLayers.removeLayer(this.layer);
-      }
-    },
+    // updateLayer: function() {
+    //   // Update the marker layer if the model changes and the layer exists
+    //   this.removeLayer();
+    //   this.initLayer();
+    // },
+    // removeLayer: function() {
+    //   if (this.layer) {
+    //     this.options.placeLayers.removeLayer(this.layer);
+    //   }
+    // },
     render: function() {
       // Show if it is within the current map bounds
       var mapBounds = this.map.getBounds();
@@ -99,56 +102,57 @@ var Shareabouts = Shareabouts || {};
         this.show();
       }
     },
+    // this.layer.on('click', this.onMarkerClick, this);
     onMarkerClick: function() {
       S.Util.log('USER', 'map', 'place-marker-click', this.model.getLoggingDetails());
       this.options.router.navigate('/place/' + this.model.id, {trigger: true});
     },
 
-    isPoint: function() {
-      return this.model.get('geometry').type == 'Point';
-    },
-    hasIcon: function() {
-      return this.styleRule && this.styleRule.icon;
-    },
-    hasStyle: function() {
-      return this.styleRule && this.styleRule.style;
-    },
+    // isPoint: function() {
+    //   return this.model.get('geometry').type == 'Point';
+    // },
+    // hasIcon: function() {
+    //   return this.styleRule && this.styleRule.icon;
+    // },
+    // hasStyle: function() {
+    //   return this.styleRule && this.styleRule.style;
+    // },
 
-    focus: function() {
-      if (!this.isFocused) {
-        this.isFocused = true;
-        this.updateLayer();
-      }
-    },
-    unfocus: function() {
-      if (this.isFocused) {
-        this.isFocused = false;
-        this.updateLayer();
-      }
-    },
-    remove: function() {
-      this.removeLayer();
-      this.map.off('move', this.throttledRender, this);
-    },
-    setIcon: function(icon) {
-      if (this.layer) {
-        this.layer.setIcon(icon);
-      }
-    },
-    show: function() {
-      if (!this.options.mapView.locationTypeFilter ||
-        this.options.mapView.locationTypeFilter.toUpperCase() === this.model.get('location_type').toUpperCase()) {
-        if (this.layer) {
-          this.options.placeLayers.addLayer(this.layer);
-        }
-      } else {
-        this.hide();
-      }
+    // focus: function() {
+    //   if (!this.isFocused) {
+    //     this.isFocused = true;
+    //     this.updateLayer();
+    //   }
+    // },
+    // unfocus: function() {
+    //   if (this.isFocused) {
+    //     this.isFocused = false;
+    //     this.updateLayer();
+    //   }
+    // },
+    // remove: function() {
+    //   this.removeLayer();
+    //   this.map.off('move', this.throttledRender, this);
+    // },
+    // setIcon: function(icon) {
+    //   if (this.layer) {
+    //     this.layer.setIcon(icon);
+    //   }
+    // },
+    // show: function() {
+    //   if (!this.options.mapView.locationTypeFilter ||
+    //     this.options.mapView.locationTypeFilter.toUpperCase() === this.model.get('location_type').toUpperCase()) {
+    //     if (this.layer) {
+    //       this.options.placeLayers.addLayer(this.layer);
+    //     }
+    //   } else {
+    //     this.hide();
+    //   }
 
-    },
-    hide: function() {
-      this.removeLayer();
-    }
+    // },
+    // hide: function() {
+    //   this.removeLayer();
+    // }
   });
 
 }(Shareabouts, jQuery, Shareabouts.Util.console));

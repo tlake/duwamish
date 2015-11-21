@@ -240,6 +240,7 @@ var Shareabouts = Shareabouts || {};
       // Caches of the views (one per place)
       this.placeFormView = null;
       this.placeDetailViews = {};
+      this.landmarkDetailViews = {};
 
       // Show tools for adding data
       this.setBodyClass();
@@ -412,6 +413,28 @@ var Shareabouts = Shareabouts || {};
         delete this.placeDetailViews[model.cid];
       }
     },
+    getLandmarkDetailView: function(title, layer) {
+      var landmarkDetailView;
+      if (this.landmarkDetailViews[title]) {
+        // landmarkDetailView = this.placeDetailViews[model.cid];
+        landmarkDetailView = this.landmarkDetailViews[title];
+      } else {
+        landmarkDetailView = new S.MapboxEarlyActionView({
+          title: layer.feature.properties.title,
+          // description: "this is a test description"
+          description: layer.feature.properties.description
+          // model: model,
+          // surveyConfig: this.options.surveyConfig,
+          // supportConfig: this.options.supportConfig,
+          // placeConfig: this.options.placeConfig,
+          // placeTypes: this.options.placeTypes,
+          // userToken: this.options.userToken
+        });
+        this.landmarkDetailViews[title] = landmarkDetailView;
+      }
+
+      return landmarkDetailView;
+    },
     getPlaceDetailView: function(model) {
       var placeDetailView;
       if (this.placeDetailViews[model.cid]) {
@@ -461,7 +484,117 @@ var Shareabouts = Shareabouts || {};
       // Called by the router
       this.collection.add({});
     },
+    viewLandmark: function(title, zoom) {
+      console.log("appView.viewLandmark: title:", title)
+      // console.log("appView.viewLandmark: responseId:", responseId)
+      console.log("appView.viewLandmark: zoom:", zoom)
+      var self = this,
+          includeSubmissions = S.Config.flavor.app.list_enabled !== false,
+          layout = S.Util.getPageLayout(),
+          onPlaceFound, onPlaceNotFound;
+
+      // onPlaceFound = function(id) {
+      loadLandmark = function(title) {
+        var map = self.mapView.map,
+            layer, center, landmarkDetailView, $responseToScrollTo;
+
+        // // If this model is a duplicate of one that already exists in the
+        // // places collection, it may not correspond to a layerView. For this
+        // // case, get the model that's actually in the places collection.
+        // if (_.isUndefined(self.mapView.layerViews[model.cid])) {
+        //   model = self.places.get(model.id);
+        // }
+
+        // layer = self.mapView.layerViews[model.cid].layer;
+        // TODO: How to get the layer when the map view hasn't finished loading?
+        layer = self.mapView.landmarkLayers[title]
+        console.log("appView.viewLandmark: fetching layer:", layer)
+        console.log("appView.viewLandmark: with title:", title)
+        // placeDetailView = self.getPlaceDetailView(model);
+        landmarkDetailView = self.getLandmarkDetailView(title, layer);
+
+        if (layer) {
+          center = layer.getLatLng ? layer.getLatLng() : layer.getBounds().getCenter();
+        }
+
+        // self.$panel.removeClass().addClass('place-detail place-detail-' + id);
+        self.$panel.removeClass().addClass('place-detail place-detail-' + title);
+        // self.showPanel(landmarkDetailView.render().$el, !!responseId);
+        self.showPanel(landmarkDetailView.render().$el, false);
+        self.hideNewPin();
+        self.destroyNewModels();
+        self.hideCenterPoint();
+        self.setBodyClass('content-visible');
+
+        if (layer) {
+          if (zoom) {
+            if (layer.getLatLng) {
+              map.setView(center, map.getMaxZoom()-1, {reset: true});
+            } else {
+              map.fitBounds(layer.getBounds());
+            }
+
+          } else {
+            map.panTo(center, {animate: true});
+          }
+        }
+
+        // if (responseId) {
+        //   // get the element based on the id
+        //   $responseToScrollTo = landmarkDetailView.$el.find('[data-response-id="'+ responseId +'"]');
+
+        //   // call scrollIntoView()
+        //   if ($responseToScrollTo.length > 0) {
+        //     if (layout === 'desktop') {
+        //       // For desktop, the panel content is scrollable
+        //       self.$panelContent.scrollTo($responseToScrollTo, 500);
+        //     } else {
+        //       // For mobile, it's the window
+        //       $(window).scrollTo($responseToScrollTo, 500);
+        //     }
+        //   }
+        // }
+
+        // Focus the one we're looking
+        // model.trigger('focus');
+      };
+
+      onPlaceNotFound = function() {
+        self.options.router.navigate('/');
+      };
+
+      // // If we get a PlaceModel then show it immediately.
+      // if (model instanceof S.PlaceModel) {
+      //   onPlaceFound(model);
+      //   return;
+      // }
+      loadLandmark(title)
+
+      // // Otherwise, assume we have a model ID.
+      // modelId = model;
+      // model = this.places.get(modelId);
+
+      // // If the model was found in the places, go ahead and use it.
+      // if (model) {
+      //   onPlaceFound(model);
+
+      // // Otherwise, fetch and use the result.
+      // } else {
+      //   this.places.fetchById(modelId, {
+      //     // Check for a valid location type before adding it to the collection
+      //     validate: true,
+      //     success: onPlaceFound,
+      //     error: onPlaceNotFound,
+      //     data: {
+      //       include_submissions: includeSubmissions
+      //     }
+      //   });
+      // }
+    },
     viewPlace: function(model, responseId, zoom) {
+      console.log("appView.viewPlace: model:", model)  // model or model.id
+      console.log("appView.viewPlace: responseId:", responseId)
+      console.log("appView.viewPlace: zoom:", zoom)
       var self = this,
           includeSubmissions = S.Config.flavor.app.list_enabled !== false,
           layout = S.Util.getPageLayout(),
