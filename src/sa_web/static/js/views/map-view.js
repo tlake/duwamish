@@ -25,12 +25,17 @@ var Shareabouts = Shareabouts || {};
       // Add layers defined in the config file
       _.each(self.options.mapConfig.layers, function(config){
         var layer;
+        if (config.type && config.type === 'mapbox') {
+          if (!config.accessToken) { config.accessToken = S.bootstrapped.mapboxToken; }
+          layer = L.mapboxGL(config);
+          self.layers[config.id] = layer;
+          // L.mapboxGL(config).addTo(self.map);
         // "type" is required by Argo for fetching data, so it's a pretty good
         // Argo indicator. Argo is this by the way: https://github.com/openplans/argo/
-        if (config.type) {
+        } else if (config.type) {
+          // L.argo(config.url, config).addTo(self.map);
           layer = L.argo(config.url, config);
           self.layers[config.id] = layer;
-
         // "layers" is required by Leaflet WMS for fetching data, so it's a pretty good
         // that the layer is WMS. Documentation here: http://leafletjs.com/reference.html#tilelayer-wms
         } else if (config.layers) {
@@ -48,7 +53,6 @@ var Shareabouts = Shareabouts || {};
             fillOpacity: config.fillOpacity
           });
           self.layers[config.id] = layer;
-
         } else {
           // Assume a tile layer
           layer = L.tileLayer(config.url, config);
