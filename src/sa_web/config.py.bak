@@ -1,6 +1,6 @@
 import yaml
 import os.path
-import urllib.request, urllib.error, urllib.parse
+import urllib2
 from contextlib import closing
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -19,7 +19,7 @@ def translate(data):
     # If it's an object, recurse
     if isinstance(data, dict):
         return dict([(k, translate(v))
-                     for k, v in list(data.items())])
+                     for k, v in data.items()])
 
     # If it's a list, recurse on each item
     elif isinstance(data, list):
@@ -27,7 +27,7 @@ def translate(data):
                 for item in data]
 
     # If it's a string, output it, unless it should be excluded
-    elif isinstance(data, str):
+    elif isinstance(data, basestring):
         msg = parse_msg(data)
         if msg is not None:
             return _(msg)
@@ -66,7 +66,7 @@ class _ShareaboutsConfig (object):
         return self.data.get(key, default)
 
     def items(self):
-        return list(self.data.items())
+        return self.data.items()
 
     def update(self, other):
         self.data.update(other)
@@ -81,7 +81,7 @@ class ShareaboutsRemoteConfig (_ShareaboutsConfig):
 
     def config_file(self):
         config_fileurl = os.path.join(self.url, 'config.yml')
-        return urllib.request.urlopen(config_fileurl)
+        return urllib2.urlopen(config_fileurl)
 
 
 class ShareaboutsLocalConfig (_ShareaboutsConfig):

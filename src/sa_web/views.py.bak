@@ -6,7 +6,7 @@ import os
 import time
 import hashlib
 import httpagentparser
-import urllib.request, urllib.error, urllib.parse
+import urllib2
 from .config import get_shareabouts_config
 from django.shortcuts import render
 from django.conf import settings
@@ -52,7 +52,7 @@ class ShareaboutsApi (object):
                            headers={'Accept': 'application/json'})
         return (res.text if res.status_code == 200 else default)
 
-    def current_user(self, default='null', **kwargs):
+    def current_user(self, default=u'null', **kwargs):
         uri = make_resource_uri('current', root=self.auth_root)
         res = requests.get(uri, headers={'Accept': 'application/json'}, **kwargs)
 
@@ -87,7 +87,7 @@ def index(request, place_id=None):
         request.session['user_token'] = session_token
         request.session.set_expiry(0)
 
-    user_token_json = '"{0}"'.format(request.session['user_token'])
+    user_token_json = u'"{0}"'.format(request.session['user_token'])
 
     # Get the browser that the user is using.
     user_agent_string = request.META.get('HTTP_USER_AGENT', '')
@@ -233,7 +233,7 @@ def proxy_view(request, url, requests_args={}):
     # in the requests_args, keep those.
     else:
         match = resolve(url)
-        for name, value in list(requests_args.get('headers', {}).items()):
+        for name, value in requests_args.get('headers', {}).items():
             name = name.upper().replace('-', '_')
             if name not in ('ACCEPT', 'CONTENT_TYPE'):
                 name = 'HTTP_' + name
